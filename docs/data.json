@@ -1,0 +1,13 @@
+[
+    {
+      "iri": "http://example.org/ontology/Person",
+      "label": "Person",
+      "description": "An individual human being."
+    },
+    {
+      "iri": "http://example.org/ontology/Organization",
+      "label": "Organization",
+      "description": "A group formed for a purpose."
+    }
+  ]
+  
