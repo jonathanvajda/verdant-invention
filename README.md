@@ -2,7 +2,13 @@
 
 The basic setup of the ontology viewing service is as follows
 - Catalog
-  - This displays ontologies in a list, with the ontology's decription.
+  - This displays ontologies in a list, with the ontology's description.
+  - Displays simple metrics (errors, warnings, etc.)
+  - Each file format provided
+- Ontology page
+  - This displays the particular ontology, with the ontology's fill annotations.
+  - Displays the metrics
+  - Displays the taxonomy 
 
 ## Logic
 
@@ -15,6 +21,9 @@ graph TB
 
     OntologyFile --[input in]--> RobotMeasure
     RobotMeasure(ROBOT measure):::javaProcess --[output]-->ontology-metrics.json
+
+    OntologyFile --[input in]--> queryBattery
+    queryBattery(Annotation Checks):::pyProcess --[output]-->ontology-metrics.json
 
     ontology-file-n.json:::file --[downloadable on] --> OntologyCard
     ontology-file-n.ttl:::file --[downloadable on] --> OntologyCard
