@@ -1,5 +1,6 @@
-# Ontology View
+# Ontology Catalog Service
 
+## Pages
 The basic setup of the ontology viewing service is as follows
 - Catalog
   - This displays ontologies in a list, with the ontology's description.
@@ -8,9 +9,14 @@ The basic setup of the ontology viewing service is as follows
 - Ontology page
   - This displays the particular ontology, with the ontology's fill annotations.
   - Displays the metrics
-  - Displays the taxonomy 
+  - Displays the taxonomy
+- Element page
+  - Displays a given IRI
+  - Displays all annotations
+  - Displays its place in the taxonomy
+  - Displays its usage
 
-## Logic
+## Ingest Logic
 
 ```mermaid
 graph TB
