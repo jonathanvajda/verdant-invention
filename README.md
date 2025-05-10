@@ -19,13 +19,13 @@ graph TB
     OntologyElementParser(Ontology Element Parser):::pyProcess --[output]--> ontology-elements-combined.json
 
     OntologyFile --[input in]--> OntologySerializer
-    OntologySerializer(ROBOT convert):::javaProcess --[output]-->ontology-file.json
-    OntologySerializer --[output]-->ontology-file.ttl
-    OntologySerializer --[output]-->ontology-file.owl
+    OntologySerializer(ROBOT convert):::javaProcess --[output]-->ontology-file-n.json
+    OntologySerializer --[output]-->ontology-file-n.ttl
+    OntologySerializer --[output]-->ontology-file-n.owl
 
-    ontology-file.json:::file --[downloadable on] --> OntologyCatalog
-    ontology-file.ttl:::file --[downloadable on] --> OntologyCatalog
-    ontology-file.owl:::file --[downloadable on] --> OntologyCatalog
+    ontology-file-n.json:::file --[downloadable on] --> OntologyCatalog
+    ontology-file-n.ttl:::file --[downloadable on] --> OntologyCatalog
+    ontology-file-n.owl:::file --[downloadable on] --> OntologyCatalog
 
     harmonized-taxonomy.json:::file --[populates card] --> OntologyTaxonomy 
     ontology-metrics.json:::file --[populates card] --> OntologyMetaData
@@ -41,8 +41,8 @@ graph TB
     ElementPage(Element Page):::page
     OntologyCatalog(Catalog Main Page):::page --[hyperlinks to]--> OntologyPage
 
-    classDef page fill:#112211,stroke:#333,stroke-width:4px;
-    classDef file fill:#001122,stroke:#333,stroke-width:4px;
-    classDef object fill:#002211,stroke:#333,stroke-width:4px;
-    classDef pyProcess fill:#221100,stroke:#333,stroke-width:1px;
-    classDef javaProcess fill:#112200,stroke:#333,stroke-width:1px;
+    classDef page fill:#11C,stroke:#111,stroke-width:1px;
+    classDef object fill:#33F,stroke:#111,stroke-width:1px;
+    classDef file fill:#333,stroke:#111,stroke-width:1px;
+    classDef pyProcess fill:#331100,stroke:#111,stroke-width:1px;
+    classDef javaProcess fill:#113300,stroke:#111,stroke-width:1px;
