@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ontology Lookup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f9f9f9;
+    }
+    #content {
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #spinner, #error {
+      color: #555;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div id="content">
+  <div id="spinner">Loading resource...</div>
+</div>
+
+<script type="module">
+  import { Parser, Store } from 'https://unpkg.com/n3@1.14.0/browser/n3.mjs';
+
+  async function loadOntology(iri) {
+    const prefixResponse = await fetch('data/prefixes.json');
+    const prefixMap = await prefixResponse.json();
+
+    const match = Object.entries(prefixMap).find(([_, ns]) => iri.startsWith(ns));
+    if (!match) throw new Error("Namespace not recognized.");
+
+    const [prefix] = match;
+    const mapResponse = await fetch(`data/maps/${prefix}-map.json`);
+    const iriMap = await mapResponse.json();
+
+    const ttlFile = iriMap[iri];
+    if (!ttlFile) throw new Error("IRI not found in map.");
+
+    const ttlResponse = await fetch(`data/ontologies/${ttlFile}`);
+    const ttlText = await ttlResponse.text();
+
+    const parser = new Parser();
+    const quads = parser.parse(ttlText);
+    const store = new Store(quads);
+
+    return store.getQuads(iri, null, null, null);
+  }
+
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    const iri = params.get('iri');
+    const content = document.getElementById('content');
+
+    if (!iri) {
+      content.innerHTML = '<h1>No IRI provided.</h1>';
+      return;
+    }
+
+    try {
+      const quads = await loadOntology(iri);
+
+      if (quads.length === 0) {
+        content.innerHTML = '<h1>No data found for this IRI.</h1>';
+        return;
+      }
+
+      let table = '<table><tr><th>Predicate</th><th>Object</th></tr>';
+      for (const quad of quads) {
+        table += `<tr><td>${quad.predicate.value}</td><td>${quad.object.value}</td></tr>`;
+      }
+      table += '</table>';
+
+      content.innerHTML = `<h1>${iri}</h1>` + table;
+    } catch (err) {
+      console.error(err);
+      content.innerHTML = `<h1 id="error">Error</h1><p>${err.message}</p>`;
+    }
+  }
+
+  init();
+</script>
+
+</body>
+</html>
