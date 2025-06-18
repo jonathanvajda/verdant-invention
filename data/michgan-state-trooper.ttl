@@ -7,6 +7,16 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
+cco:hasAddress a owl:ObjectProperty .
+cco:hasSubdivision a owl:ObjectProperty .
+cco:isLocatedIn a owl:ObjectProperty .
+:hasJurisdiction a owl:ObjectProperty .
+cco:hasFacilityIdentifier a owl:DatatypeProperty .
+cco:streetAddress a owl:DatatypeProperty .
+cco:addressLocality a owl:DatatypeProperty .
+cco:addressRegion a owl:DatatypeProperty .
+cco:postalCode a owl:DatatypeProperty .
+
 ### Reusable Classes ###
 :StatePoliceOrganization a owl:Class ;
     rdfs:label "State Police Organization" ;

@@ -1,6 +1,95 @@
 {
   "nodes": [
     {
+      "id": "http://example.org/state-police#Precinct_Flint",
+      "label": "Flint Area Precinct",
+      "types": [
+        ":Precinct",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/hasSubdivision",
+      "label": "hasSubdivision",
+      "types": [
+        "owl:ObjectProperty"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#StatePoliceOrganization",
+      "label": "State Police Organization",
+      "types": [
+        "owl:Class"
+      ]
+    },
+    {
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/hasFacilityIdentifier",
+      "label": "hasFacilityIdentifier",
+      "types": [
+        "owl:DatatypeProperty"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#hasJurisdiction",
+      "label": "state-police#hasJurisdiction",
+      "types": [
+        "owl:ObjectProperty"
+      ]
+    },
+    {
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/addressLocality",
+      "label": "addressLocality",
+      "types": [
+        "owl:DatatypeProperty"
+      ]
+    },
+    {
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/postalCode",
+      "label": "postalCode",
+      "types": [
+        "owl:DatatypeProperty"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#MSP_Post2",
+      "label": "MSP Post 2 \u2013 Flint",
+      "types": [
+        ":PoliceStation",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#MSP_Post1",
+      "label": "MSP Post 1 \u2013 Lansing",
+      "types": [
+        ":PoliceStation",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#MichiganStatePolice",
+      "label": "Michigan State Police",
+      "types": [
+        ":StatePoliceOrganization",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#Address_HQ",
+      "label": "MSP HQ Address",
+      "types": [
+        "cco:PostalAddress",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/addressRegion",
+      "label": "addressRegion",
+      "types": [
+        "owl:DatatypeProperty"
+      ]
+    },
+    {
       "id": "http://example.org/state-police#Address_Post1",
       "label": "Post 1 Address",
       "types": [
@@ -9,10 +98,24 @@
       ]
     },
     {
-      "id": "http://example.org/state-police#Address_Post2",
-      "label": "Post 2 Address",
+      "id": "http://example.org/state-police#Precinct",
+      "label": "Precinct",
       "types": [
-        "cco:PostalAddress",
+        "owl:Class"
+      ]
+    },
+    {
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/hasAddress",
+      "label": "hasAddress",
+      "types": [
+        "owl:ObjectProperty"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#HQ_MSP",
+      "label": "MSP Headquarters",
+      "types": [
+        ":PoliceStation",
         "owl:NamedIndividual"
       ]
     },
@@ -33,35 +136,25 @@
       ]
     },
     {
-      "id": "http://example.org/state-police#MSP_Post1",
-      "label": "MSP Post 1 \u2013 Lansing",
+      "id": "http://example.org/state-police#Address_Post2",
+      "label": "Post 2 Address",
       "types": [
-        ":PoliceStation",
+        "cco:PostalAddress",
         "owl:NamedIndividual"
       ]
     },
     {
-      "id": "http://example.org/state-police#MSP_Post2",
-      "label": "MSP Post 2 \u2013 Flint",
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/streetAddress",
+      "label": "streetAddress",
       "types": [
-        ":PoliceStation",
-        "owl:NamedIndividual"
+        "owl:DatatypeProperty"
       ]
     },
     {
-      "id": "http://example.org/state-police#HQ_MSP",
-      "label": "MSP Headquarters",
+      "id": "http://www.ontologyrepository.com/CommonCoreOntologies/isLocatedIn",
+      "label": "isLocatedIn",
       "types": [
-        ":PoliceStation",
-        "owl:NamedIndividual"
-      ]
-    },
-    {
-      "id": "http://example.org/state-police#MichiganStatePolice",
-      "label": "Michigan State Police",
-      "types": [
-        ":StatePoliceOrganization",
-        "owl:NamedIndividual"
+        "owl:ObjectProperty"
       ]
     },
     {
@@ -70,37 +163,71 @@
       "types": [
         "owl:Class"
       ]
-    },
-    {
-      "id": "http://example.org/state-police#Address_HQ",
-      "label": "MSP HQ Address",
-      "types": [
-        "cco:PostalAddress",
-        "owl:NamedIndividual"
-      ]
-    },
-    {
-      "id": "http://example.org/state-police#Precinct_Flint",
-      "label": "Flint Area Precinct",
-      "types": [
-        ":Precinct",
-        "owl:NamedIndividual"
-      ]
-    },
-    {
-      "id": "http://example.org/state-police#Precinct",
-      "label": "Precinct",
-      "types": [
-        "owl:Class"
-      ]
-    },
-    {
-      "id": "http://example.org/state-police#StatePoliceOrganization",
-      "label": "State Police Organization",
-      "types": [
-        "owl:Class"
-      ]
     }
   ],
-  "links": []
+  "links": [
+    {
+      "source": "http://example.org/state-police#MSP_Post2",
+      "target": "http://example.org/state-police#Precinct_Flint",
+      "label": "state-police#hasJurisdiction",
+      "iri": "http://example.org/state-police#hasJurisdiction",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#MSP_Post2",
+      "target": "http://example.org/state-police#Address_Post2",
+      "label": "hasAddress",
+      "iri": "http://www.ontologyrepository.com/CommonCoreOntologies/hasAddress",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#MSP_Post1",
+      "target": "http://example.org/state-police#Precinct_Lansing",
+      "label": "state-police#hasJurisdiction",
+      "iri": "http://example.org/state-police#hasJurisdiction",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#MichiganStatePolice",
+      "target": "http://example.org/state-police#MSP_Post1",
+      "label": "hasSubdivision",
+      "iri": "http://www.ontologyrepository.com/CommonCoreOntologies/hasSubdivision",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#MichiganStatePolice",
+      "target": "http://example.org/state-police#MSP_Post2",
+      "label": "hasSubdivision",
+      "iri": "http://www.ontologyrepository.com/CommonCoreOntologies/hasSubdivision",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#HQ_MSP",
+      "target": "http://example.org/state-police#Address_HQ",
+      "label": "hasAddress",
+      "iri": "http://www.ontologyrepository.com/CommonCoreOntologies/hasAddress",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#Precinct_Lansing",
+      "target": "http://example.org/state-police#Jurisdiction_Michigan",
+      "label": "isLocatedIn",
+      "iri": "http://www.ontologyrepository.com/CommonCoreOntologies/isLocatedIn",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#MSP_Post1",
+      "target": "http://example.org/state-police#Address_Post1",
+      "label": "hasAddress",
+      "iri": "http://www.ontologyrepository.com/CommonCoreOntologies/hasAddress",
+      "type": "ObjectProperty"
+    },
+    {
+      "source": "http://example.org/state-police#Precinct_Flint",
+      "target": "http://example.org/state-police#Jurisdiction_Michigan",
+      "label": "isLocatedIn",
+      "iri": "http://www.ontologyrepository.com/CommonCoreOntologies/isLocatedIn",
+      "type": "ObjectProperty"
+    }
+  ]
 }
