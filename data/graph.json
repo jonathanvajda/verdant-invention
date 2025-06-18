@@ -1,0 +1,106 @@
+{
+  "nodes": [
+    {
+      "id": "http://example.org/state-police#Address_Post1",
+      "label": "Post 1 Address",
+      "types": [
+        "cco:PostalAddress",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#Address_Post2",
+      "label": "Post 2 Address",
+      "types": [
+        "cco:PostalAddress",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#Precinct_Lansing",
+      "label": "Lansing Area Precinct",
+      "types": [
+        ":Precinct",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#Jurisdiction_Michigan",
+      "label": "State of Michigan",
+      "types": [
+        "cco:GeopoliticalEntity",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#MSP_Post1",
+      "label": "MSP Post 1 \u2013 Lansing",
+      "types": [
+        ":PoliceStation",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#MSP_Post2",
+      "label": "MSP Post 2 \u2013 Flint",
+      "types": [
+        ":PoliceStation",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#HQ_MSP",
+      "label": "MSP Headquarters",
+      "types": [
+        ":PoliceStation",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#MichiganStatePolice",
+      "label": "Michigan State Police",
+      "types": [
+        ":StatePoliceOrganization",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#PoliceStation",
+      "label": "Police Station",
+      "types": [
+        "owl:Class"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#Address_HQ",
+      "label": "MSP HQ Address",
+      "types": [
+        "cco:PostalAddress",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#Precinct_Flint",
+      "label": "Flint Area Precinct",
+      "types": [
+        ":Precinct",
+        "owl:NamedIndividual"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#Precinct",
+      "label": "Precinct",
+      "types": [
+        "owl:Class"
+      ]
+    },
+    {
+      "id": "http://example.org/state-police#StatePoliceOrganization",
+      "label": "State Police Organization",
+      "types": [
+        "owl:Class"
+      ]
+    }
+  ],
+  "links": []
+}

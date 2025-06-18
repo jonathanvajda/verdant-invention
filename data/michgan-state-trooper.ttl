@@ -1,0 +1,79 @@
+@prefix : <http://example.org/state-police#> .
+@prefix cco: <http://www.ontologyrepository.com/CommonCoreOntologies/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+### Reusable Classes ###
+:StatePoliceOrganization a owl:Class ;
+    rdfs:label "State Police Organization" ;
+    rdfs:subClassOf cco:LawEnforcementOrganization .
+
+:PoliceStation a owl:Class ;
+    rdfs:label "Police Station" ;
+    rdfs:subClassOf cco:Facility .
+
+:Precinct a owl:Class ;
+    rdfs:label "Precinct" ;
+    rdfs:subClassOf cco:GeopoliticalEntity .
+
+### Instance: Michigan State Police ###
+:MichiganStatePolice a :StatePoliceOrganization , owl:NamedIndividual ;
+    rdfs:label "Michigan State Police" ;
+    skos:altLabel "MSP" ;
+    cco:hasHeadquarters :HQ_MSP ;
+    cco:hasSubdivision :MSP_Post1 , :MSP_Post2 .
+
+:HQ_MSP a :PoliceStation , owl:NamedIndividual ;
+    rdfs:label "MSP Headquarters" ;
+    cco:hasAddress :Address_HQ .
+
+:Address_HQ a cco:PostalAddress , owl:NamedIndividual ;
+    rdfs:label "MSP HQ Address" ;
+    cco:streetAddress "7150 Harris Drive" ;
+    cco:addressLocality "Dimondale" ;
+    cco:addressRegion "MI" ;
+    cco:postalCode "48821" .
+
+### Post 1 ###
+:MSP_Post1 a :PoliceStation , owl:NamedIndividual ;
+    rdfs:label "MSP Post 1 – Lansing" ;
+    cco:hasAddress :Address_Post1 ;
+    :hasJurisdiction :Precinct_Lansing ;
+    cco:hasFacilityIdentifier "Post 1" .
+
+:Address_Post1 a cco:PostalAddress , owl:NamedIndividual ;
+    rdfs:label "Post 1 Address" ;
+    cco:streetAddress "7119 North Canal Road" ;
+    cco:addressLocality "Lansing" ;
+    cco:addressRegion "MI" ;
+    cco:postalCode "48913" .
+
+:Precinct_Lansing a :Precinct , owl:NamedIndividual ;
+    rdfs:label "Lansing Area Precinct" ;
+    cco:isLocatedIn :Jurisdiction_Michigan .
+
+### Post 2 ###
+:MSP_Post2 a :PoliceStation , owl:NamedIndividual ;
+    rdfs:label "MSP Post 2 – Flint" ;
+    cco:hasAddress :Address_Post2 ;
+    :hasJurisdiction :Precinct_Flint ;
+    cco:hasFacilityIdentifier "Post 2" .
+
+:Address_Post2 a cco:PostalAddress , owl:NamedIndividual ;
+    rdfs:label "Post 2 Address" ;
+    cco:streetAddress "4481 Corunna Road" ;
+    cco:addressLocality "Flint" ;
+    cco:addressRegion "MI" ;
+    cco:postalCode "48532" .
+
+:Precinct_Flint a :Precinct , owl:NamedIndividual ;
+    rdfs:label "Flint Area Precinct" ;
+    cco:isLocatedIn :Jurisdiction_Michigan .
+
+### Jurisdiction ###
+:Jurisdiction_Michigan a cco:GeopoliticalEntity , owl:NamedIndividual ;
+    rdfs:label "State of Michigan" .
