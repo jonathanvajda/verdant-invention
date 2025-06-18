@@ -1,41 +1,58 @@
 import json
 from rdflib import Graph, RDF, RDFS, OWL, URIRef
 
-# Load RDF data
 g = Graph()
-g.parse("your_file.ttl", format="ttl")  # <-- Replace with your TTL file path
+g.parse("your_file.ttl", format="ttl")  # Replace with your TTL file
 
-# Label map
 label_map = {}
-for s, p, o in g.triples((None, RDFS.label, None)):
-    if isinstance(o, str):
-        label_map[s] = str(o)
+type_map = {}
 
-# Extract nodes
+# Collect labels
+for s, _, o in g.triples((None, RDFS.label, None)):
+    label_map[s] = str(o)
+
+# Collect types
+for s, _, o in g.triples((None, RDF.type, None)):
+    if s not in type_map:
+        type_map[s] = set()
+    type_map[s].add(o)
+
+# Node assembly
 nodes = {}
-for s in g.subjects(RDF.type, OWL.NamedIndividual):
+for s in set(type_map.keys()):
+    label = label_map.get(s, str(s).split("/")[-1])
+    rdf_types = list(type_map[s])
     nodes[str(s)] = {
         "id": str(s),
-        "label": label_map.get(s, str(s).split("/")[-1]),
+        "label": label,
+        "types": [t.n3(g.namespace_manager) for t in rdf_types]
     }
 
-# Extract links (object properties between individuals)
+# Edge assembly
 links = []
 for s, p, o in g.triples((None, None, None)):
-    if (s, RDF.type, OWL.NamedIndividual) in g and (o, RDF.type, OWL.NamedIndividual) in g:
+    if isinstance(p, URIRef) and isinstance(o, URIRef):
         if (p, RDF.type, OWL.ObjectProperty) in g:
-            links.append({
-                "source": str(s),
-                "target": str(o),
-                "label": label_map.get(p, str(p).split("/")[-1])
-            })
+            p_type = "ObjectProperty"
+        elif (p, RDF.type, OWL.DatatypeProperty) in g:
+            p_type = "DatatypeProperty"
+        elif (p, RDF.type, OWL.AnnotationProperty) in g:
+            p_type = "AnnotationProperty"
+        else:
+            continue
 
-# Assemble JSON
+        links.append({
+            "source": str(s),
+            "target": str(o),
+            "label": label_map.get(p, p.split("/")[-1]),
+            "iri": str(p),
+            "type": p_type
+        })
+
 graph_data = {
     "nodes": list(nodes.values()),
     "links": links
 }
 
-# Output to file
 with open("graph.json", "w", encoding="utf-8") as f:
     json.dump(graph_data, f, indent=2)

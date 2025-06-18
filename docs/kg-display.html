@@ -5,68 +5,102 @@
   <title>RDF Graph Viewer</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
-    body { font-family: sans-serif; }
-    .node circle { fill: lightsteelblue; stroke: #333; stroke-width: 1.5px; }
-    .link { stroke: #999; stroke-opacity: 0.6; }
-    text { font-size: 12px; pointer-events: none; }
+    body { font-family: sans-serif; background: #f4f4f4; }
+    svg { border: 1px solid #ccc; }
+    .node circle { stroke: #333; stroke-width: 1.5px; }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #666;
+      padding: 5px;
+      font-size: 12px;
+      pointer-events: none;
+    }
+    input[type="text"] {
+      font-size: 14px;
+      margin: 10px;
+      padding: 5px;
+    }
   </style>
 </head>
 <body>
-  <h2>RDF Instance Graph</h2>
+
+  <input type="text" id="focusInput" placeholder="Enter label to focus (case-sensitive)" />
   <svg width="960" height="600"></svg>
+
   <script>
+    const colorMap = {
+      "owl:NamedIndividual": "orchid",
+      "owl:Class": "khaki",
+    };
+    const edgeColorMap = {
+      "ObjectProperty": "deepskyblue",
+      "DatatypeProperty": "limegreen",
+      "AnnotationProperty": "darkorange",
+    };
+
+    const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
     const svg = d3.select("svg");
     const width = +svg.attr("width");
     const height = +svg.attr("height");
 
-    d3.json("graph.json").then(function(data) {
+    d3.json("graph.json").then(data => {
       const simulation = d3.forceSimulation(data.nodes)
-          .force("link", d3.forceLink(data.links).id(d => d.id).distance(100))
-          .force("charge", d3.forceManyBody().strength(-300))
-          .force("center", d3.forceCenter(width / 2, height / 2));
+        .force("link", d3.forceLink(data.links).id(d => d.id).distance(100))
+        .force("charge", d3.forceManyBody().strength(-300))
+        .force("center", d3.forceCenter(width / 2, height / 2));
 
-      const link = svg.append("g")
-          .attr("stroke", "#999")
-          .attr("stroke-opacity", 0.6)
-        .selectAll("line")
-        .data(data.links)
-        .enter().append("line")
-          .attr("stroke-width", 2);
+      const link = svg.append("g").selectAll("line")
+        .data(data.links).enter().append("line")
+        .attr("stroke-width", 2)
+        .attr("stroke", d => edgeColorMap[d.type] || "#999")
+        .on("mouseover", (event, d) => {
+          tooltip.transition().duration(200).style("opacity", .9);
+          tooltip.html(`Edge IRI:<br>${d.iri}`).style("left", (event.pageX + 10) + "px").style("top", (event.pageY - 10) + "px");
+        })
+        .on("mouseout", () => tooltip.transition().duration(500).style("opacity", 0));
 
-      const linkLabel = svg.append("g")
-        .selectAll("text")
-        .data(data.links)
-        .enter().append("text")
-        .attr("fill", "#555")
-        .text(d => d.label);
-
-      const node = svg.append("g")
-        .selectAll("g")
-        .data(data.nodes)
-        .enter().append("g");
+      const node = svg.append("g").selectAll("g")
+        .data(data.nodes).enter().append("g")
+        .on("mouseover", (event, d) => {
+          tooltip.transition().duration(200).style("opacity", .9);
+          tooltip.html(`Node IRI:<br>${d.id}`).style("left", (event.pageX + 10) + "px").style("top", (event.pageY - 10) + "px");
+        })
+        .on("mouseout", () => tooltip.transition().duration(500).style("opacity", 0));
 
       node.append("circle")
-          .attr("r", 10)
-          .attr("fill", "lightsteelblue");
+        .attr("r", 10)
+        .attr("fill", d => {
+          for (const t of d.types) {
+            if (colorMap[t]) return colorMap[t];
+          }
+          return "lightgray";
+        });
 
       node.append("text")
-          .text(d => d.label)
-          .attr("x", 12)
-          .attr("y", 3);
+        .text(d => d.label)
+        .attr("x", 12)
+        .attr("y", 3);
 
       simulation.on("tick", () => {
-        link
-            .attr("x1", d => d.source.x)
+        link.attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+      });
 
-        linkLabel
-            .attr("x", d => (d.source.x + d.target.x) / 2)
-            .attr("y", d => (d.source.y + d.target.y) / 2);
-
-        node
-            .attr("transform", d => `translate(${d.x},${d.y})`);
+      // Search + focus
+      document.getElementById("focusInput").addEventListener("change", () => {
+        const targetLabel = document.getElementById("focusInput").value;
+        const match = data.nodes.find(n => n.label === targetLabel);
+        if (match) {
+          simulation.alpha(1).restart();
+          simulation.force("center", d3.forceCenter(match.x, match.y));
+        } else {
+          alert("No match found for: " + targetLabel);
+        }
       });
     });
   </script>
