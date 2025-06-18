@@ -51,6 +51,17 @@
         .force("charge", d3.forceManyBody().strength(-300))
         .force("center", d3.forceCenter(width / 2, height / 2));
 
+      const linkLabel = svg.append("g")
+        // Edge labels
+        .selectAll("text")
+        .data(data.links)
+        .enter().append("text")
+        .attr("class", "link-label")
+        .attr("font-size", "10px")
+        .attr("fill", "#444")
+        .text(d => d.label);
+
+
       const link = svg.append("g").selectAll("line")
         .data(data.links).enter().append("line")
         .attr("stroke-width", 2)
@@ -89,6 +100,10 @@
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
         node.attr("transform", d => `translate(${d.x},${d.y})`);
+        linkLabel
+            .attr("x", d => (d.source.x + d.target.x) / 2)
+            .attr("y", d => (d.source.y + d.target.y) / 2);
+
       });
 
       // Search + focus
