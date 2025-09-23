@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API → JSON → RDF Workbench (Wireframe)</title>
+  <style>
+    :root{
+      --bg:#0b0d12;               /* canvas */
+      --panel:#11151c;            /* cards */
+      --muted:#1a202b;            /* inputs */
+      --ring:#3b82f6;             /* accent */
+      --ok:#22c55e;               /* success */
+      --warn:#f59e0b;             /* warn */
+      --err:#ef4444;              /* error */
+      --text:#e5e7eb;             /* primary */
+      --sub:#94a3b8;              /* secondary */
+      --hair:#202632;             /* borders */
+      --shadow:0 10px 25px rgba(0,0,0,.35);
+      --radius:14px;
+      --radius-sm:10px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:radial-gradient(1200px 600px at 80% -10%, #111927 0%, #0b0d12 50%, #0b0d12 100%);
+      color:var(--text); font:500 16px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    }
+    a{color:inherit}
+    .app{
+      display:grid; grid-template-rows:auto 1fr; min-height:100vh;
+    }
+    /* Top bar */
+    .top{
+      position:sticky; top:0; z-index:10; backdrop-filter:saturate(1.2) blur(8px);
+      background:linear-gradient(180deg, rgba(17,21,28,.8), rgba(17,21,28,.4));
+      border-bottom:1px solid var(--hair); box-shadow:var(--shadow);
+    }
+    .top-inner{
+      max-width:1200px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; gap:14px;
+    }
+    .logo{display:flex; align-items:center; gap:10px}
+    .logo svg{width:28px;height:28px;filter:drop-shadow(0 6px 12px rgba(59,130,246,.35))}
+    .tag{color:var(--sub); font-size:14px}
+
+    /* Layout */
+    .shell{max-width:1200px; margin:22px auto; padding:0 20px; display:grid; grid-template-columns:280px 1fr; gap:18px}
+    @media (max-width: 900px){ .shell{grid-template-columns:1fr} .side{order:2} }
+
+    .card{background:linear-gradient(180deg, #121722, #0e131c); border:1px solid var(--hair); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .card h3{margin:0 0 8px 0; font-size:16px; color:#cdd6f4}
+    .card .body{padding:16px}
+
+    /* Stepper */
+    .side{position:sticky; top:74px; align-self:start}
+    .stepper{list-style:none; margin:0; padding:10px}
+    .step{
+      display:flex; gap:12px; align-items:center; padding:10px 12px; margin:6px 0; border-radius:12px; cursor:pointer; user-select:none;
+      border:1px solid transparent;
+    }
+    .step:hover{background:rgba(59,130,246,.06); border-color:rgba(59,130,246,.25)}
+    .step.active{background:linear-gradient(180deg, rgba(59,130,246,.18), rgba(59,130,246,.08)); border-color:rgba(59,130,246,.45)}
+    .step .num{
+      width:28px; height:28px; border-radius:8px; display:grid; place-items:center; font-weight:700; color:#dbeafe;
+      background:linear-gradient(180deg, #3b82f6, #1e40af);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.15), 0 6px 14px rgba(59,130,246,.35);
+    }
+    .step .label{font-weight:600}
+    .step .hint{color:var(--sub); font-size:12px}
+
+    /* Main panels */
+    .panel{display:none}
+    .panel.active{display:block}
+    .grid{display:grid; gap:14px}
+    .two{grid-template-columns:1fr 1fr}
+    @media (max-width: 900px){ .two{grid-template-columns:1fr} }
+
+    /* Inputs */
+    .field{display:grid; gap:6px; margin-bottom:12px}
+    .label{font-size:13px; color:#cbd5e1}
+    .input, select, textarea{
+      width:100%; background:var(--muted); color:var(--text); border:1px solid var(--hair); border-radius:12px; padding:10px 12px; outline:none;
+    }
+    .input:focus, select:focus, textarea:focus{border-color:var(--ring); box-shadow:0 0 0 4px rgba(59,130,246,.15)}
+
+    .btns{display:flex; flex-wrap:wrap; gap:10px}
+    .btn{
+      background:linear-gradient(180deg, #1f2937, #111827); border:1px solid var(--hair); color:#e5e7eb; padding:10px 14px; border-radius:12px; cursor:pointer;
+    }
+    .btn.primary{background:linear-gradient(180deg, #2563eb, #1d4ed8); border-color:#1e40af}
+    .btn.ghost{background:transparent}
+    .btn:disabled{opacity:.6; cursor:not-allowed}
+
+    .hint-row{display:flex; align-items:center; gap:10px; color:var(--sub); font-size:13px}
+
+    /* Editors */
+    pre, code, textarea{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+    .viewer{
+      background:linear-gradient(180deg, #0f131b, #0c1118); border:1px solid var(--hair); border-radius:var(--radius); padding:12px; overflow:auto;
+      min-height:180px; white-space:pre-wrap; word-break:break-word;
+    }
+
+    .tabs{display:flex; gap:6px; padding:6px; background:#0c1118; border:1px solid var(--hair); border-radius:12px; margin-bottom:10px}
+    .tab{padding:8px 10px; border-radius:10px; cursor:pointer; font-weight:600; color:#cbd5e1}
+    .tab.active{background:#111827; border:1px solid var(--hair)}
+
+    /* Table preview */
+    table{width:100%; border-collapse:collapse}
+    th, td{border-bottom:1px solid var(--hair); padding:8px 10px; text-align:left; font-size:14px}
+    th{color:#cbd5e1; font-weight:700}
+
+    /* Toasts */
+    .toasts{position:fixed; right:16px; bottom:16px; display:grid; gap:10px; z-index:50}
+    .toast{padding:10px 12px; border-radius:12px; border:1px solid var(--hair); background:#0f172a; box-shadow:var(--shadow)}
+    .toast.ok{border-color:rgba(34,197,94,.4)}
+    .toast.warn{border-color:rgba(245,158,11,.4)}
+    .toast.err{border-color:rgba(239,68,68,.4)}
+
+    /* Footer */
+    .foot{color:var(--sub); font-size:12px; padding:20px; text-align:center}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Top Bar -->
+    <header class="top">
+      <div class="top-inner">
+        <div class="logo" aria-label="Workbench">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 7h16M6 12h12M9 17h6" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div style="font-weight:800; letter-spacing:.3px">API → JSON → RDF Workbench</div>
+            <div class="tag">Jupyter‑ish steps; client‑side only</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <!-- Left: Stepper -->
+      <aside class="side card" aria-label="Step navigation">
+        <ul class="stepper" id="stepper">
+          <li class="step active" data-step="1"><div class="num">1</div><div><div class="label">Choose API</div><div class="hint">Base URL + resource</div></div></li>
+          <li class="step" data-step="2"><div class="num">2</div><div><div class="label">Auth</div><div class="hint">API key / header</div></div></li>
+          <li class="step" data-step="3"><div class="num">3</div><div><div class="label">Template</div><div class="hint">Site‑specific transform</div></div></li>
+          <li class="step" data-step="4"><div class="num">4</div><div><div class="label">Call API</div><div class="hint">Query, headers, body</div></div></li>
+          <li class="step" data-step="5"><div class="num">5</div><div><div class="label">View Results</div><div class="hint">Raw / table</div></div></li>
+          <li class="step" data-step="6"><div class="num">6</div><div><div class="label">Transform → RDF</div><div class="hint">JSON‑LD / Turtle</div></div></li>
+        </ul>
+      </aside>
+
+      <!-- Right: Panels -->
+      <section>
+        <!-- STEP 1 -->
+        <div class="panel active" data-panel="1">
+          <div class="card">
+            <div class="body">
+              <h3>Step 1 · Choose an API</h3>
+              <div class="grid two">
+                <div>
+                  <div class="field">
+                    <label class="label" for="apiBase">API Base URL</label>
+                    <input id="apiBase" class="input" placeholder="https://api.example.com/v1" />
+                  </div>
+                  <div class="field">
+                    <label class="label" for="apiResource">Resource / Endpoint</label>
+                    <input id="apiResource" class="input" placeholder="/items" />
+                  </div>
+                  <div class="btns">
+                    <button class="btn primary" id="go2">Continue</button>
+                    <button class="btn ghost" id="prefillDemo">Prefill demo</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="hint-row">Tip: Only client‑safe APIs here (CORS‑friendly). You can proxy later if needed.</div>
+                  <div style="margin-top:12px" class="viewer" id="apiPreview">{
+  "base": "",
+  "endpoint": ""
+}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="panel" data-panel="2">
+          <div class="card"><div class="body">
+            <h3>Step 2 · Authentication</h3>
+            <div class="grid two">
+              <div>
+                <div class="field">
+                  <label class="label" for="authScheme">Auth Scheme</label>
+                  <select id="authScheme">
+                    <option value="none">None</option>
+                    <option value="header">API Key (Header)</option>
+                    <option value="query">API Key (Query Param)</option>
+                    <option value="bearer">Bearer Token</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="label" for="apiKey">API Key / Token</label>
+                  <input id="apiKey" class="input" placeholder="••••••••" />
+                </div>
+                <div class="btns">
+                  <button class="btn" id="back1">Back</button>
+                  <button class="btn primary" id="go3">Continue</button>
+                </div>
+              </div>
+              <div>
+                <div class="viewer" id="authPreview">{
+  "scheme": "none",
+  "placement": null
+}</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="panel" data-panel="3">
+          <div class="card"><div class="body">
+            <h3>Step 3 · Select a transformation template</h3>
+            <div class="grid two">
+              <div>
+                <div class="field">
+                  <label class="label" for="siteSelect">Website / Source</label>
+                  <select id="siteSelect">
+                    <option value="generic">Generic JSON</option>
+                    <option value="gh">GitHub (search repos)</option>
+                    <option value="wiki">Wikipedia (REST excerpts)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="label" for="templateSelect">Template</label>
+                  <select id="templateSelect">
+                    <option value="jsonld-basic">JSON‑LD (basic @context)</option>
+                    <option value="turtle-basic">Turtle (flat nodes)</option>
+                    <option value="custom">Custom (wire later)</option>
+                  </select>
+                </div>
+                <div class="btns">
+                  <button class="btn" id="back2">Back</button>
+                  <button class="btn primary" id="go4">Continue</button>
+                </div>
+              </div>
+              <div>
+                <div class="viewer" id="templatePreview">{
+  "site": "generic",
+  "template": "jsonld-basic",
+  "notes": "Templates declare field mappings; we'll wire your existing transformers later."
+}</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="panel" data-panel="4">
+          <div class="card"><div class="body">
+            <h3>Step 4 · Build & run the API request</h3>
+            <div class="grid two">
+              <div>
+                <div class="field">
+                  <label class="label" for="httpMethod">HTTP Method</label>
+                  <select id="httpMethod">
+                    <option>GET</option>
+                    <option>POST</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="label">Query Params (key=value per line)</label>
+                  <textarea id="queryParams" rows="5" placeholder="q=ontology\npage=1"></textarea>
+                </div>
+                <div class="field" id="bodyField" style="display:none">
+                  <label class="label">Request Body (JSON)</label>
+                  <textarea id="requestBody" rows="6" placeholder='{"name":"example"}'></textarea>
+                </div>
+                <div class="btns">
+                  <button class="btn" id="back3">Back</button>
+                  <button class="btn primary" id="run">Run request</button>
+                </div>
+                <div class="hint-row" id="reqHint">Ready.</div>
+              </div>
+              <div>
+                <div class="tabs">
+                  <div class="tab active" data-tab="curl">cURL</div>
+                  <div class="tab" data-tab="url">Final URL</div>
+                  <div class="tab" data-tab="headers">Headers</div>
+                </div>
+                <div class="viewer" id="reqPreview"># Request preview will appear here…</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="panel" data-panel="5">
+          <div class="card"><div class="body">
+            <h3>Step 5 · Results</h3>
+            <div class="tabs">
+              <div class="tab active" data-tab="json">Raw JSON</div>
+              <div class="tab" data-tab="table">Table Preview</div>
+            </div>
+            <div id="resultsRaw" class="viewer" aria-live="polite">// Results will show here after you run the request.</div>
+            <div id="resultsTable" class="viewer" style="display:none">
+              <table id="tableEl"></table>
+            </div>
+            <div class="btns" style="margin-top:10px">
+              <button class="btn" id="back4">Back</button>
+              <button class="btn primary" id="go6">Transform → RDF</button>
+              <button class="btn ghost" id="copyJson">Copy JSON</button>
+            </div>
+          </div></div>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="panel" data-panel="6">
+          <div class="card"><div class="body">
+            <h3>Step 6 · Transform results to RDF</h3>
+            <div class="grid two">
+              <div>
+                <div class="field">
+                  <label class="label" for="rdfFormat">RDF Output</label>
+                  <select id="rdfFormat">
+                    <option value="jsonld">JSON‑LD</option>
+                    <option value="ttl">Turtle</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="label" for="baseIri">Base IRI / @vocab</label>
+                  <input id="baseIri" class="input" placeholder="http://example.org/" />
+                </div>
+                <div class="field">
+                  <label class="label" for="contextArea">@context / Prefixes (optional)</label>
+                  <textarea id="contextArea" rows="6" placeholder='{"@vocab":"http://example.org/"}'></textarea>
+                </div>
+                <div class="btns">
+                  <button class="btn" id="back5">Back</button>
+                  <button class="btn primary" id="doTransform">Generate RDF</button>
+                  <button class="btn ghost" id="downloadRdf" disabled>Download</button>
+                </div>
+              </div>
+              <div>
+                <div class="tabs">
+                  <div class="tab active" data-tab="rdfOut">RDF Output</div>
+                </div>
+                <div class="viewer" id="rdfOutput" aria-live="polite">// Your RDF will appear here.</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">Wireframe UI · no external libraries · ready to stitch your transformers later</footer>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+  // Tiny state store for the wireframe
+  const S = {
+    step: 1,
+    api: { base: '', endpoint: '' },
+    auth: { scheme: 'none', key: '' },
+    template: { site: 'generic', name: 'jsonld-basic' },
+    request: { method: 'GET', query: '', body: '' },
+    result: null,
+    rdf: { format: 'jsonld', base: '', context: '' },
+  };
+
+  // Utility helpers
+  const $ = sel => document.querySelector(sel);
+  const $all = sel => Array.from(document.querySelectorAll(sel));
+  function toast(msg, tone='ok'){ const el=document.createElement('div'); el.className=`toast ${tone}`; el.textContent=msg; $('#toasts').appendChild(el); setTimeout(()=> el.remove(), 3500); }
+  function setStep(n){ S.step=n; $all('.step').forEach(s=> s.classList.toggle('active', +s.dataset.step===n)); $all('.panel').forEach(p=> p.classList.toggle('active', +p.dataset.panel===n)); }
+  function pretty(x){ try{ return JSON.stringify(x, null, 2) }catch{ return String(x) } }
+
+  // Stepper click
+  $('#stepper').addEventListener('click', (e)=>{
+    const li = e.target.closest('.step'); if(!li) return; setStep(+li.dataset.step);
+  });
+
+  // STEP 1
+  $('#prefillDemo').addEventListener('click', ()=>{
+    $('#apiBase').value = 'https://api.publicapis.org';
+    $('#apiResource').value = '/entries';
+    S.api.base = $('#apiBase').value; S.api.endpoint = $('#apiResource').value; $('#apiPreview').textContent = pretty({base:S.api.base, endpoint:S.api.endpoint});
+    toast('Demo API prefilled', 'ok');
+  });
+  ['apiBase','apiResource'].forEach(id=>{
+    $('#'+id).addEventListener('input', ()=>{
+      S.api.base = $('#apiBase').value.trim();
+      S.api.endpoint = $('#apiResource').value.trim();
+      $('#apiPreview').textContent = pretty(S.api);
+    });
+  });
+  $('#go2').addEventListener('click', ()=>{ if(!S.api.base){ toast('Please enter an API base URL', 'warn'); return } setStep(2) });
+
+  // STEP 2
+  $('#authScheme').addEventListener('change', e=>{ S.auth.scheme = e.target.value; $('#authPreview').textContent = pretty(S.auth) });
+  $('#apiKey').addEventListener('input', e=>{ S.auth.key = e.target.value; $('#authPreview').textContent = pretty(S.auth) });
+  $('#back1').addEventListener('click', ()=> setStep(1));
+  $('#go3').addEventListener('click', ()=> setStep(3));
+
+  // STEP 3
+  $('#siteSelect').addEventListener('change', e=>{ S.template.site = e.target.value; $('#templatePreview').textContent = pretty({site:S.template.site, template:S.template.name}) });
+  $('#templateSelect').addEventListener('change', e=>{ S.template.name = e.target.value; $('#templatePreview').textContent = pretty({site:S.template.site, template:S.template.name}) });
+  $('#back2').addEventListener('click', ()=> setStep(2));
+  $('#go4').addEventListener('click', ()=> setStep(4));
+
+  // STEP 4
+  $('#httpMethod').addEventListener('change', e=>{ S.request.method = e.target.value; $('#bodyField').style.display = (S.request.method==='POST')?'block':'none'; buildPreview(); });
+  $('#queryParams').addEventListener('input', e=>{ S.request.query = e.target.value; buildPreview(); });
+  $('#requestBody').addEventListener('input', e=>{ S.request.body = e.target.value; buildPreview(); });
+  $('#back3').addEventListener('click', ()=> setStep(3));
+
+  function buildPreview(){
+    const params = (S.request.query||'').split(/\n+/).filter(Boolean).map(line=>line.split('='));
+    const usp = new URLSearchParams(params);
+    const url = `${(S.api.base||'').replace(/\/$/,'')}${S.api.endpoint||''}${usp.toString()?('?'+usp.toString()):''}`;
+    const headers = {};
+    if(S.auth.scheme==='header') headers['x-api-key'] = S.auth.key || '<<<YOUR KEY>>>';
+    if(S.auth.scheme==='bearer') headers['authorization'] = 'Bearer ' + (S.auth.key || '<<<TOKEN>>>');
+    const curlLines = [
+      `curl -s \\\n  -X ${S.request.method} \\\n  '${url}'`,
+    ];
+    Object.entries(headers).forEach(([k,v])=> curlLines.push(`  -H '${k}: ${v}'`));
+    if(S.request.method==='POST' && S.request.body) curlLines.push(`  -H 'content-type: application/json' \\\n  --data '${S.request.body.replace(/'/g, "'\\''")}'`);
+
+    const tab = document.querySelector('.tab.active')?.dataset.tab;
+    if(tab==='url') $('#reqPreview').textContent = url; else if(tab==='headers') $('#reqPreview').textContent = pretty(headers); else $('#reqPreview').textContent = curlLines.join(' \\\n');
+    $('#reqHint').textContent = 'Preview ready.';
+  }
+  buildPreview();
+
+  $all('.tabs .tab').forEach(t=> t.addEventListener('click', ()=>{
+    const parent = t.parentElement; parent.querySelectorAll('.tab').forEach(x=> x.classList.remove('active')); t.classList.add('active');
+    if(t.dataset.tab==='rdfOut') return; // RDF panel single tab
+    buildPreview();
+  }));
+
+  // Run request (client-side fetch). This is a wireframe: handles GET only safely.
+  $('#run').addEventListener('click', async()=>{
+    try{
+      $('#reqHint').textContent = 'Running…';
+      const params = (S.request.query||'').split(/\n+/).filter(Boolean).map(line=>line.split('='));
+      const usp = new URLSearchParams(params);
+      if(S.auth.scheme==='query' && S.auth.key){ usp.set('api_key', S.auth.key) }
+      const url = `${(S.api.base||'').replace(/\/$/,'')}${S.api.endpoint||''}${usp.toString()?('?'+usp.toString()):''}`;
+      const headers = {};
+      if(S.auth.scheme==='header' && S.auth.key) headers['x-api-key'] = S.auth.key;
+      if(S.auth.scheme==='bearer' && S.auth.key) headers['authorization'] = 'Bearer ' + S.auth.key;
+
+      const res = await fetch(url, { method: S.request.method, headers });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      S.result = data;
+      $('#resultsRaw').textContent = pretty(data);
+      renderTablePreview(data);
+      toast('Request completed ✔', 'ok');
+      setStep(5);
+    }catch(err){ console.error(err); toast('Request failed: '+ err.message, 'err'); $('#reqHint').textContent = 'Error.'; }
+  });
+
+  function renderTablePreview(data){
+    const table = $('#tableEl'); table.innerHTML='';
+    const arr = Array.isArray(data) ? data : (Array.isArray(data?.items)? data.items : (Array.isArray(data?.results)? data.results : (Array.isArray(data?.entries)? data.entries : null)));
+    if(!arr){ table.innerHTML = '<tr><td>No simple array found to preview.</td></tr>'; return; }
+    const cols = new Set(); arr.slice(0, 10).forEach(r=> Object.keys(r||{}).forEach(k=> cols.add(k)) );
+    const headers = Array.from(cols);
+    table.insertAdjacentHTML('beforeend', `<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`);
+    const tbody = document.createElement('tbody');
+    arr.slice(0, 20).forEach(r=>{
+      const tds = headers.map(h=> `<td>${escapeHtml(String((r?.[h]??'')))}</td>`).join('');
+      tbody.insertAdjacentHTML('beforeend', `<tr>${tds}</tr>`);
+    });
+    table.appendChild(tbody);
+  }
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])) }
+
+  // STEP 5 controls
+  $('#copyJson').addEventListener('click', async()=>{
+    try{ await navigator.clipboard.writeText($('#resultsRaw').textContent); toast('JSON copied', 'ok') }catch{ toast('Copy failed', 'err') }
+  });
+  $('#back4').addEventListener('click', ()=> setStep(4));
+  $('#go6').addEventListener('click', ()=> setStep(6));
+
+  // STEP 6 transform (placeholder logic). We'll insert your real transformer later.
+  $('#rdfFormat').addEventListener('change', e=> S.rdf.format=e.target.value);
+  $('#baseIri').addEventListener('input', e=> S.rdf.base=e.target.value);
+  $('#contextArea').addEventListener('input', e=> S.rdf.context=e.target.value);
+  $('#back5').addEventListener('click', ()=> setStep(5));
+  $('#doTransform').addEventListener('click', ()=>{
+    if(!S.result){ toast('No results to transform', 'warn'); return }
+    // Minimal, fake transform to show wiring points
+    let out = '';
+    if(S.rdf.format==='jsonld'){
+      const ctx = S.rdf.context?.trim() ? JSON.parse(S.rdf.context) : {"@vocab": S.rdf.base || "http://example.org/"};
+      out = pretty({"@context": ctx, "@graph": Array.isArray(S.result)? S.result : [S.result]});
+    } else {
+      const base = S.rdf.base || 'http://example.org/';
+      out = `@prefix ex: <${base}> .\n\n` + toTTL(S.result, 'ex:root');
+    }
+    $('#rdfOutput').textContent = out; $('#downloadRdf').disabled=false; toast('RDF generated (demo)', 'ok');
+  });
+  $('#downloadRdf').addEventListener('click', ()=>{
+    const blob = new Blob([$('#rdfOutput').textContent], {type: 'text/plain'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = S.rdf.format==='jsonld' ? 'output.jsonld' : 'output.ttl'; a.click(); URL.revokeObjectURL(a.href);
+  });
+
+  function toTTL(obj, subject){
+    // Extremely naive object→TTL preview for wireframe only.
+    if(typeof obj !== 'object' || obj===null) return `${subject} ex:value "${String(obj).replace(/"/g,'\\"')}" .\n`;
+    let lines='';
+    const entries = Object.entries(obj);
+    entries.forEach(([k,v],i)=>{
+      const pred = `ex:${safeName(k)}`;
+      if(Array.isArray(v)){
+        v.forEach((item, idx)=>{ const b = `${subject}_${safeName(k)}_${idx}`; lines += `${subject} ${pred} ${b} .\n` + toTTL(item, b); });
+      }else if(typeof v==='object' && v!==null){
+        const b = `${subject}_${safeName(k)}`; lines += `${subject} ${pred} ${b} .\n` + toTTL(v, b);
+      }else{
+        lines += `${subject} ${pred} "${String(v).replace(/"/g,'\\"')}" .\n`;
+      }
+    });
+    return lines;
+  }
+  function safeName(s){ return String(s).replace(/[^A-Za-z0-9_]/g,'_'); }
+
+  // Initial previews
+  $('#apiPreview').textContent = pretty(S.api);
+  $('#authPreview').textContent = pretty(S.auth);
+  $('#templatePreview').textContent = pretty({site:S.template.site, template:S.template.name});
+  </script>
+</body>
+</html>
